@@ -1,41 +1,47 @@
 import boto3
-import json
 
-def connect_to_bedrock():
-    # Initialize the Bedrock Agent client
-    bedrock = boto3.client(
-        service_name='bedrock-agent-runtime',  # Make sure this is bedrock-agent-runtime
-        region_name='us-west-2',
-    )
-    return bedrock
-
-def get_agent_response(client, agent_id, prompt):
-    """
-    Invoke a specific Bedrock agent and extract the response
-    """
-    response = client.invoke_agent(
-        agentId=agent_id,
-        agentAliasId='KX0PLTN5O1',  # Optional: specific version/alias of the agent
-        sessionId='your-session-id',  # Optional: to maintain conversation context
-        inputText=prompt
-    )
+class BedrockAgent:
+    def __init__(self, region='us-west-2', agent_id='LDRI7C5TYJ', agent_alias_id='KX0PLTN5O1'):
+        """
+        Initialize the BedrockAgent with configuration
+        """
+        self.agent_id = agent_id
+        self.agent_alias_id = agent_alias_id
+        self.client = self._connect_to_bedrock(region)
+        
+    def _connect_to_bedrock(self, region):
+        """
+        Initialize the Bedrock Agent client (private method)
+        """
+        return boto3.client(
+            service_name='bedrock-agent-runtime',
+            region_name=region,
+        )
     
-    # Extract the response from the EventStream
-    for event in response['completion']:
-        if event.get('chunk'):
-            # Return the raw text from the chunk without JSON parsing
-            return event['chunk']['bytes'].decode()
-    
-    return None
+    def get_response(self, prompt, session_id="default-session"):
+        """
+        Get a response from the agent
+        """
+        response = self.client.invoke_agent(
+            agentId=self.agent_id,
+            agentAliasId=self.agent_alias_id,
+            sessionId=session_id,
+            inputText=prompt
+        )
+        
+        # Extract the response from the EventStream
+        for event in response['completion']:
+            if event.get('chunk'):
+                return event['chunk']['bytes'].decode()
+        
+        return None
 
-# Usage example
 def main():
-    client = connect_to_bedrock()
+    # Create an instance of BedrockAgent
+    agent = BedrockAgent()
     
-    # Replace with your actual agent ID
-    agent_id = 'LDRI7C5TYJ'
-    
-    response = get_agent_response(client, agent_id, "What can you help me with?")
+    # Get response from the agent
+    response = agent.get_response("What can you help me with?")
     print(response)
 
 if __name__ == "__main__":
