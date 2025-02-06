@@ -4,17 +4,15 @@ import json
 def connect_to_bedrock():
     # Initialize the Bedrock Agent client
     bedrock = boto3.client(
-        service_name='bedrock-agent-runtime',
+        service_name='bedrock-agent-runtime',  # Make sure this is bedrock-agent-runtime
         region_name='us-west-2',
     )
-    
     return bedrock
 
-def invoke_bedrock_agent(client, agent_id, prompt):
+def get_agent_response(client, agent_id, prompt):
     """
-    Invoke a specific Bedrock agent using its ID
+    Invoke a specific Bedrock agent and extract the response
     """
-    
     response = client.invoke_agent(
         agentId=agent_id,
         agentAliasId='KX0PLTN5O1',  # Optional: specific version/alias of the agent
@@ -22,7 +20,13 @@ def invoke_bedrock_agent(client, agent_id, prompt):
         inputText=prompt
     )
     
-    return response
+    # Extract the response from the EventStream
+    for event in response['completion']:
+        if event.get('chunk'):
+            chunk_data = json.loads(event['chunk']['bytes'].decode())
+            return chunk_data.get('text', '')
+    
+    return None
 
 # Usage example
 def main():
@@ -31,7 +35,7 @@ def main():
     # Replace with your actual agent ID
     agent_id = 'LDRI7C5TYJ'
     
-    response = invoke_bedrock_agent(client, agent_id, "What can you help me with?")
+    response = get_agent_response(client, agent_id, "What can you help me with?")
     print(response)
 
 if __name__ == "__main__":
