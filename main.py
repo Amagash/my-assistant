@@ -23,8 +23,8 @@ def get_agent_response(client, agent_id, prompt):
     # Extract the response from the EventStream
     for event in response['completion']:
         if event.get('chunk'):
-            chunk_data = json.loads(event['chunk']['bytes'].decode())
-            return chunk_data.get('text', '')
+            # Return the raw text from the chunk without JSON parsing
+            return event['chunk']['bytes'].decode()
     
     return None
 
