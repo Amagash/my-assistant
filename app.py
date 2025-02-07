@@ -10,11 +10,7 @@ st.title("Bedrock Agent Chat")
 
 # Initialize BedrockAgent (only once)
 if 'agent' not in st.session_state:
-    st.session_state.agent = BedrockAgent(
-        region='us-west-2',
-        agent_id='LDRI7C5TYJ',
-        agent_alias_id='KX0PLTN5O1'
-    )
+    st.session_state.agent = BedrockAgent()
 
 # Chat input
 if prompt := st.chat_input("What would you like to ask?"):
