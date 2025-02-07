@@ -1,5 +1,5 @@
 import streamlit as st
-from main import BedrockAgent
+from agent import BedrockAgent
 
 # Initialize session state for chat history
 if 'messages' not in st.session_state:
