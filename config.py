@@ -1,6 +1,12 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 # AWS Bedrock Agent Configuration
 BEDROCK_CONFIG = {
-    'region': 'us-west-2',
-    'agent_id': 'LDRI7C5TYJ',
-    'agent_alias_id': 'KX0PLTN5O1'
+    'region': os.getenv('AWS_REGION'),
+    'agent_id': os.getenv('BEDROCK_AGENT_ID'),
+    'agent_alias_id': os.getenv('BEDROCK_AGENT_ALIAS_ID')
 } 
