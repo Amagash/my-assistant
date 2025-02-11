@@ -1,16 +1,21 @@
 import streamlit as st
 from agent import BedrockAgent
+from config import BEDROCK_CONFIG
 
 # Initialize session state for chat history
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 
 # App title
-st.title("Bedrock Agent Chat")
+st.title("My DevEx assistant")
 
 # Initialize BedrockAgent (only once)
 if 'agent' not in st.session_state:
-    st.session_state.agent = BedrockAgent()
+    st.session_state.agent = BedrockAgent(
+        region=BEDROCK_CONFIG['region'],
+        agent_id=BEDROCK_CONFIG['agent_id'],
+        agent_alias_id=BEDROCK_CONFIG['agent_alias_id']
+    )
 
 # Chat input
 if prompt := st.chat_input("What would you like to ask?"):
