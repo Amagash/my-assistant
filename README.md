@@ -1,4 +1,4 @@
-# AWS Bedrock Assistant
+# My AI Assistant
 
 A Streamlit-based chat interface for AWS Bedrock Agent with integrated file upload capabilities and knowledge base management.
 
@@ -58,6 +58,7 @@ KNOWLEDGE_BASE_ID=your-knowledge-base-id
 DATA_SOURCE_ID=your-data-source-id
 S3_BUCKET_NAME=your-bucket-name
 ```
+
 ## Usage
 
 1. Start the Streamlit application:
