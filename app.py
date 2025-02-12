@@ -26,10 +26,11 @@ if 'agent' not in st.session_state:
 def sync_knowledge_base():
     """Trigger a sync of the knowledge base"""
     try:
-        response = bedrock_client.start_knowledge_base_sync(
+        response = bedrock_client.start_ingestion_job(
             knowledgeBaseId=os.getenv('KNOWLEDGE_BASE_ID'),
+            dataSourceId=os.getenv('DATA_SOURCE_ID')
         )
-        return response['knowledgeBaseSyncJob']['knowledgeBaseSyncJobId']
+        return response['ingestionJob']['ingestionJobId']
     except Exception as e:
         st.error(f"Failed to sync knowledge base: {str(e)}")
         return None
@@ -51,7 +52,7 @@ if uploaded_file is not None:
                 if sync_job_id:
                     st.success(f"""
                         File uploaded successfully! S3 path: {s3_path}
-                        Knowledge base sync initiated with job ID: {sync_job_id}
+                        Knowledge base ingestion initiated with job ID: {sync_job_id}
                     """)
                 else:
                     st.warning("File uploaded but knowledge base sync failed")
