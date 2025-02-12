@@ -1,6 +1,5 @@
 import streamlit as st
 from agent import BedrockAgent
-import config
 import os
 import boto3
 
