@@ -1,13 +1,14 @@
 import boto3
+import os
 
 class BedrockAgent:
-    def __init__(self, region='us-west-2', agent_id='LDRI7C5TYJ', agent_alias_id='KX0PLTN5O1'):
+    def __init__(self, region=None, agent_id=None, agent_alias_id=None):
         """
-        Initialize the BedrockAgent with configuration
+        Initialize the BedrockAgent with configuration from environment variables
         """
-        self.agent_id = agent_id
-        self.agent_alias_id = agent_alias_id
-        self.client = self._connect_to_bedrock(region)
+        self.agent_id = agent_id or os.getenv('BEDROCK_AGENT_ID')
+        self.agent_alias_id = agent_alias_id or os.getenv('BEDROCK_AGENT_ALIAS_ID') 
+        self.client = self._connect_to_bedrock(region or os.getenv('AWS_REGION'))
         
     def _connect_to_bedrock(self, region):
         """
