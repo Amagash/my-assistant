@@ -10,3 +10,8 @@ BEDROCK_CONFIG = {
     'agent_id': os.getenv('BEDROCK_AGENT_ID'),
     'agent_alias_id': os.getenv('BEDROCK_AGENT_ALIAS_ID')
 } 
+
+# AWS S3 Configuration
+S3_CONFIG = {
+    'bucket_name': os.getenv('S3_BUCKET_NAME')
+}
