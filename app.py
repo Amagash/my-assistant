@@ -8,8 +8,9 @@ import boto3
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 
-# Initialize S3 client
-s3_client = boto3.client('s3', region_name=config.BEDROCK_CONFIG['region'])
+# Initialize S3 client and Bedrock client
+s3_client = boto3.client('s3', region_name=os.getenv('AWS_REGION'))
+bedrock_client = boto3.client('bedrock-agent', region_name=os.getenv('AWS_REGION'))
 
 # App title
 st.title("My DevEx assistant")
@@ -17,22 +18,43 @@ st.title("My DevEx assistant")
 # Initialize BedrockAgent (only once)
 if 'agent' not in st.session_state:
     st.session_state.agent = BedrockAgent(
-        region=config.BEDROCK_CONFIG['region'],
-        agent_id=config.BEDROCK_CONFIG['agent_id'],
-        agent_alias_id=config.BEDROCK_CONFIG['agent_alias_id']
+        region=os.getenv('AWS_REGION'),
+        agent_id=os.getenv('BEDROCK_AGENT_ID'),
+        agent_alias_id=os.getenv('BEDROCK_AGENT_ALIAS_ID')
     )
+
+def sync_knowledge_base():
+    """Trigger a sync of the knowledge base"""
+    try:
+        response = bedrock_client.start_knowledge_base_sync(
+            knowledgeBaseId=os.getenv('KNOWLEDGE_BASE_ID'),
+        )
+        return response['knowledgeBaseSyncJob']['knowledgeBaseSyncJobId']
+    except Exception as e:
+        st.error(f"Failed to sync knowledge base: {str(e)}")
+        return None
 
 # File uploader
 uploaded_file = st.file_uploader("Choose a file to upload", type=['pdf', 'txt', 'doc', 'docx'])
 
 if uploaded_file is not None:
     if st.button('Upload to S3'):
-        with st.spinner('Uploading...'):
+        with st.spinner('Uploading file and syncing knowledge base...'):
             try:
+                # Upload to S3
                 bucket_name = os.getenv('S3_BUCKET_NAME')
                 s3_client.upload_fileobj(uploaded_file, bucket_name, uploaded_file.name)
                 s3_path = f"s3://{bucket_name}/{uploaded_file.name}"
-                st.success(f"File uploaded successfully! S3 path: {s3_path}")
+                
+                # Trigger knowledge base sync
+                sync_job_id = sync_knowledge_base()
+                if sync_job_id:
+                    st.success(f"""
+                        File uploaded successfully! S3 path: {s3_path}
+                        Knowledge base sync initiated with job ID: {sync_job_id}
+                    """)
+                else:
+                    st.warning("File uploaded but knowledge base sync failed")
             except Exception as e:
                 st.error(f"Failed to upload file: {str(e)}")
 
